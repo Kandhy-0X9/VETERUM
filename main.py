@@ -22,7 +22,7 @@ def loadingAnimation(): # loading effect
         clearTerminal()
         typing("_ _ _ _ _ ")
         clearTerminal()
-        time.sleep(.2)
+        time.sleep(0.2)
 class Players: # Player class
     def __init__(self, name, health, mana):
         self.__name = name
