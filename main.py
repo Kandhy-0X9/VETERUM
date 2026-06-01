@@ -113,76 +113,86 @@ typing("---VETERUM---\n")
 typing("\nWelcome to Veterum, a card game where you battle against your opponent using a deck of cards.\nEach card has its own unique abilities and effects.\nThe goal is to reduce your opponent's health to 0 before they do the same to you.\nGood luck!")
 
 # Main game loop
-while player.getHealth()>0 and enemy.getHealth()>0:
-    loadingAnimation()
-    cardsInPlayerHand = random.sample(cards, 3) # Randomly select 3 cards for the player's hand
-    cardsInEnemyHand = random.sample(cards, 3) # Randomly select 3 cards for the enemy's hand
-    print(f"Your Health: {player.getHealth()} | Your Mana: {player.getMana()}")
-    print(f"Enemy Health: {enemy.getHealth()} | Enemy Mana: {enemy.getMana()}")
+while True: # for replayability
+    while player.getHealth()>0 and enemy.getHealth()>0:
+        # Give passive mana regeneration
+        player.setMana(player.getMana() + 3)
+        enemy.setMana(enemy.getMana() + 3)
+        
+        loadingAnimation()
+        # ... rest of your loop
+        loadingAnimation()
+        cardsInPlayerHand = random.sample(cards, 3) # Randomly select 3 cards for the player's hand
+        cardsInEnemyHand = random.sample(cards, 3) # Randomly select 3 cards for the enemy's hand
+        print(f"Your Health: {player.getHealth()} | Your Mana: {player.getMana()}")
+        print(f"Enemy Health: {enemy.getHealth()} | Enemy Mana: {enemy.getMana()}")
 
-    print("\nYour Hand:")# show cards in player's hand
-    for i, card in enumerate(cardsInPlayerHand):
-        print(f"{i+1}. {card.getName()} (Mana Cost: {card.getManaCost()})")
+        print("\nYour Hand:")# show cards in player's hand
+        for i, card in enumerate(cardsInPlayerHand):
+            print(f"{i+1}. {card.getName()} (Mana Cost: {card.getManaCost()})")
 
-    # Player's turn
-    while True:
-        try:
-            # ask player to select a card
-            choice = int(input("\nSelect a card to play (1-3) or 4 to skip turn: "))
-            if choice < 1 or choice > 4:
-                typing("\nInvalid choice. Please select a card between 1 and 4.")
+        # Player's turn
+        selectedCard = None
+        while True:
+            try:
+                # ask player to select a card
+                choice = int(input("\nSelect a card to play (1-3) or 4 to skip turn: "))
+                if choice < 1 or choice > 4:
+                    typing("\nInvalid choice. Please select a card between 1 and 4.")
+                    continue
+                elif player.getMana() < cardsInPlayerHand[choice-1].getManaCost():
+                    typing("\nNot enough mana to play this card. Please select a different card.")
+                    continue
+                elif choice == 4:
+                    typing("\nYou skipped your turn.")
+                    break
+                else:
+                    selectedCard = cardsInPlayerHand[choice-1]
+                    player.setMana(player.getMana() - selectedCard.getManaCost())
+                    typing(f"\nYou played {selectedCard.getName()}!")
+                    break
+            except ValueError:
+                typing("\nInvalid input. Please enter a number between 1 and 4.")
                 continue
-            elif choice == 4:
-                typing("\nYou skipped your turn.")
-                break
-            elif player.getMana() < cardsInPlayerHand[choice-1].getManaCost():
-                typing("\nNot enough mana to play this card. Please select a different card.")
-                continue
-            else:
-                selectedCard = cardsInPlayerHand[choice-1]
-                player.setMana(player.getMana() - selectedCard.getManaCost())
-                typing(f"\nYou played {selectedCard.getName()}!")
-                break
-        except:
-            typing("\nInvalid input. Please enter a number between 1 and 3.")
-            continue
-
-    # Apply card effects
-    enemy.setHealth(enemy.getHealth() - selectedCard.getDmgValue())
-    player.setHealth(player.getHealth() + selectedCard.getHpRegen())
-    player.setMana(player.getMana() + selectedCard.getManaBonus())
-
-    # Enemy's turn
-    playableEnemyCards = []
-    for card in cardsInEnemyHand:
-        if card.getManaCost() <= enemy.getMana():
-            playableEnemyCards.append(card)
-            
-    if playableEnemyCards:
-        enemyCard = random.choice(playableEnemyCards)
-        enemy.setMana(enemy.getMana() - enemyCard.getManaCost())
-        typing(f"\nEnemy played {enemyCard.getName()}!")
 
         # Apply card effects
-        player.setHealth(player.getHealth() - enemyCard.getDmgValue())
-        enemy.setHealth(enemy.getHealth() + enemyCard.getHpRegen())
-        enemy.setMana(enemy.getMana() + enemyCard.getManaBonus())
+        if selectedCard:
+            enemy.setHealth(enemy.getHealth() - selectedCard.getDmgValue())
+            player.setHealth(player.getHealth() + selectedCard.getHpRegen())
+            player.setMana(player.getMana() + selectedCard.getManaBonus())
+
+        # Enemy's turn
+        playableEnemyCards = []
+        for card in cardsInEnemyHand:
+            if card.getManaCost() <= enemy.getMana():
+                playableEnemyCards.append(card)
+                
+        if playableEnemyCards:
+            enemyCard = random.choice(playableEnemyCards)
+            enemy.setMana(enemy.getMana() - enemyCard.getManaCost())
+            typing(f"\nEnemy played {enemyCard.getName()}!")
+
+            # Apply card effects
+            player.setHealth(player.getHealth() - enemyCard.getDmgValue())
+            enemy.setHealth(enemy.getHealth() + enemyCard.getHpRegen())
+            enemy.setMana(enemy.getMana() + enemyCard.getManaBonus())
+        else:
+            typing("\nEnemy has no cards to play and skips the turn.")
+
+    # Check for win/loss conditions
+    if player.getHealth() <= 0 and enemy.getHealth() <= 0:
+        typing("\nIt's a draw!")
+    elif player.getHealth() <= 0:
+        typing("\nYou have been defeated!")
     else:
-        typing("\nEnemy has no cards to play and skips the turn.")
+        typing("\nYou have won!")
 
-# Check for win/loss conditions
-if player.getHealth() <= 0 and enemy.getHealth() <= 0:
-    typing("\nIt's a draw!")
-elif player.getHealth() <= 0:
-    typing("\nYou have been defeated!")
-else:
-    typing("\nYou have won!")
-
-repeat = input("\nDo you want to play again? (y/n): ").strip().lower()
-if repeat == 'y':
-    player.setHealth(100)
-    player.setMana(10)
-    enemy.setHealth(100)
-    enemy.setMana(10)
-else:
-    typing("\nThanks for playing! Goodbye!")
+    repeat = input("\nDo you want to play again? (y/n): ").strip().lower()
+    if repeat == 'y':
+        player.setHealth(100)
+        player.setMana(10)
+        enemy.setHealth(100)
+        enemy.setMana(10)
+    else:
+        typing("\nThanks for playing! Goodbye!")
+        break
