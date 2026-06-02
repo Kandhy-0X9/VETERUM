@@ -23,6 +23,7 @@ def loadingAnimation(): # loading effect
         typing("_ _ _ _ _ ")
         clearTerminal()
         time.sleep(0.2)
+
 class Players: # Player class
     def __init__(self, name, health, mana):
         self.__name = name
@@ -108,6 +109,7 @@ cards.append(immune)
 player = Players("Player", 100, 10)
 enemy = Players("Enemy", 100, 10)
 
+# intro
 loadingAnimation()
 typing("---VETERUM---\n")
 typing("\nWelcome to Veterum, a card game where you battle against your opponent using a deck of cards.\nEach card has its own unique abilities and effects.\nThe goal is to reduce your opponent's health to 0 before they do the same to you.\nGood luck!")
@@ -118,9 +120,6 @@ while True: # for replayability
         # Give passive mana regeneration
         player.setMana(player.getMana() + 3)
         enemy.setMana(enemy.getMana() + 3)
-        
-        loadingAnimation()
-        # ... rest of your loop
         loadingAnimation()
         cardsInPlayerHand = random.sample(cards, 3) # Randomly select 3 cards for the player's hand
         cardsInEnemyHand = random.sample(cards, 3) # Randomly select 3 cards for the enemy's hand
@@ -186,7 +185,7 @@ while True: # for replayability
         typing("\nYou have been defeated!")
     else:
         typing("\nYou have won!")
-
+    # game loop
     repeat = input("\nDo you want to play again? (y/n): ").strip().lower()
     if repeat == 'y':
         player.setHealth(100)
@@ -195,4 +194,4 @@ while True: # for replayability
         enemy.setMana(10)
     else:
         typing("\nThanks for playing! Goodbye!")
-        break
+        break # outer most loop
