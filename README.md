@@ -1,6 +1,7 @@
-Veterum - of old
+# Veterum - of old
 
-To do:
+## To do
+
     - add effects e.g. buffs and debuffs
     - add gods
     - make each god have presets of cards
